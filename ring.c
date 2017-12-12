@@ -1,49 +1,36 @@
 #include <stdio.h>
 #include <stdint.h>
+#include <time.h>
 
-// CAP must be a power of 2, using unsigned integer overflow
+// CAP must be a power of 2 (using uint32_t overflow)
 #define CAP 4
 #define LEN CAP - 1
 
-struct buffer {
-	uint32_t read;
-	uint32_t write;
+struct ring {
+	uint32_t head;
+	uint32_t tail;
 	char array[CAP];
 };
 
-uint32_t mask(struct buffer *b, uint32_t i) {
-	return i & LEN;
-}
+/* push adds an element to the tail of the ring buffer */
+void push(struct ring *r, char v) { r->array[(r->tail++) & LEN] = v; }
 
-void push(struct buffer *b, char v) { 
-	b->array[mask(b, b->write++)] = v;
-}
+/* shift returns the element from the head of the ring buffer */
+char shift(struct ring *r) { return r->array[(r->head++) & LEN]; }
 
-char shift(struct buffer *b) {
-	return b->array[mask(b, b->read++)];
-}
-
-struct buffer new() {
-	struct buffer b;
-	
-	b.read = (uint32_t)LEN;
-	for(uint32_t i = 0; i < CAP; i++) {
-		b.array[i] = 0x00;
-	}
-
-	return b;
-}
+/* init sets up the ring tail field for pushing/shifting */
+void init(struct ring *r) { r->tail = (uint32_t)CAP; }
 
 int main() {
-	struct buffer r = new();
+	struct ring r;
+	init(&r);
 
 	push(&r, 'k');
+	printf("%c", shift(&r));
 	push(&r, 'a');
+	printf("%c", shift(&r));
 	push(&r, 'r');
+	printf("%c", shift(&r));
 	push(&r, 'l');
-
-	printf("%c\n", shift(&r));
-	printf("%c\n", shift(&r));
-	printf("%c\n", shift(&r));
 	printf("%c\n", shift(&r));
 }
