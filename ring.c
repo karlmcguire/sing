@@ -1,44 +1,49 @@
 #include <stdio.h>
+#include <stdint.h>
+
+// CAP must be a power of 2, using unsigned integer overflow
+#define CAP 4
+#define LEN CAP - 1
 
 struct buffer {
-	int  read;
-	int  write;
-	int  capacity;
-	char array[4];
+	uint32_t read;
+	uint32_t write;
+	char array[CAP];
 };
 
-int empty(struct buffer *b) {
-	return b->read == b->write;
+uint32_t mask(struct buffer *b, uint32_t i) {
+	return i & LEN;
 }
 
-int size(struct buffer *b) {
-	return b->write - b->read;
-}
-
-int full(struct buffer *b) {
-	return size(b) == b->capacity;
-}
-
-int mask(struct buffer *b, int i) {
-	return i & (b->capacity - 1);
-}
-
-int push(struct buffer *b, char v) { 
+void push(struct buffer *b, char v) { 
 	b->array[mask(b, b->write++)] = v;
-	return 0;
 }
 
 char shift(struct buffer *b) {
 	return b->array[mask(b, b->read++)];
 }
 
+struct buffer new() {
+	struct buffer b;
+	
+	b.read = (uint32_t)LEN;
+	for(uint32_t i = 0; i < CAP; i++) {
+		b.array[i] = 0x00;
+	}
+
+	return b;
+}
+
 int main() {
-	struct buffer r;
-	r.capacity = 4;
+	struct buffer r = new();
 
 	push(&r, 'k');
-	printf("%c\n", shift(&r)); // 0x01 <- why?
-	printf("%c\n", shift(&r)); // 0x00
-	printf("%c\n", shift(&r)); // 0x00
-	printf("%c\n", shift(&r)); // 'k'
+	push(&r, 'a');
+	push(&r, 'r');
+	push(&r, 'l');
+
+	printf("%c\n", shift(&r));
+	printf("%c\n", shift(&r));
+	printf("%c\n", shift(&r));
+	printf("%c\n", shift(&r));
 }
