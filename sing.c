@@ -15,18 +15,13 @@ sing_push(struct sing_buffer *b, char *s) {
 	if(sing_full(b))
 		return 0;
 
-	// get next index
 	int i = (b->tail++) & SING_LEN;
-	// get length of stsing
 	int l = strlen(s) + 1;
 
-	// free memory if already allocated
 	if(!b->array[i])
 		free(b->array[i]);
 
-	// allocate length of stsing
 	b->array[i] = malloc(l);
-	// copy stsing
 	strncpy(b->array[i], s, l);
 
 	return 1;
