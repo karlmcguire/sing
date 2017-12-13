@@ -1,6 +1,5 @@
 #include <stdint.h>
 
-#define RING_CAP (uint32_t)4
 #define RING_LEN RING_CAP - (uint32_t)1
 
 struct ring_buffer {
