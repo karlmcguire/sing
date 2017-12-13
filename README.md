@@ -20,3 +20,4 @@ char *karl = sing_shift(&b);
 
 * concurrency/thread safe
 * more data types
+* generate uuid from array index?
