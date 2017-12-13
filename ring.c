@@ -1,73 +1,58 @@
 #include <stdio.h>
-#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
-// CAP must be a power of 2 (using uint32_t overflow)
-#define CAP (uint32_t)4
-#define LEN CAP - (uint32_t)1
+#include "ring.h"
 
-struct ring {
-	uint32_t head;
-	uint32_t tail;
-	char *array[CAP];
-};
-
-/* size returns the number of unread objects in the ring buffer */
-uint32_t size(struct ring *r) { 
-	return r->tail - r->head; 
+void ring_init(struct ring_buffer *rb) { 
+	rb->tail = RING_CAP;
+	rb->head = RING_CAP; 
 }
 
-/* empty returns 1 if the ring buffer is empty, 0 if not */
-int empty(struct ring *r) {
-	return r->head == r->tail;
-}
-
-/* full returns 1 if the ring buffer is full, 0 if not */
-int full(struct ring *r) {
-	return size(r) == CAP;
-}
-
-/* push adds an element to the tail of the ring buffer */
-int push(struct ring *r, char *v) {
-	if(full(r))
+int ring_push(struct ring_buffer *rb, char *s) {
+	if(ring_full(rb))
 		return 0;
 
 	// get next index
-	int i = (r->tail++) & LEN;
+	int i = (rb->tail++) & RING_LEN;
 	// get length of string
-	int l = strlen(v) + 1;
+	int l = strlen(s) + 1;
 
 	// free memory if already allocated
-	if(!r->array[i])
-		free(r->array[i]);
+	if(!rb->array[i])
+		free(rb->array[i]);
 
 	// allocate length of string
-	r->array[i] = malloc(l);
+	rb->array[i] = malloc(l);
 	// copy string
-	strncpy(r->array[i], v, l);
+	strncpy(rb->array[i], s, l);
 
 	return 1;
 }
 
-/* shift returns the element from the head of the ring buffer */
-char *shift(struct ring *r) { 
-	if(empty(r))
+char *ring_shift(struct ring_buffer *rb) { 
+	if(ring_empty(rb))
 		return "";
 
-	return r->array[(r->head++) & LEN]; 
+	return rb->array[(rb->head++) & RING_LEN]; 
 }
 
-/* init sets up the ring tail field for pushing/shifting */
-void init(struct ring *r) { 
-	r->tail = CAP;
-	r->head = CAP; 
+int ring_empty(struct ring_buffer *rb) {
+	return rb->head == rb->tail;
+}
+
+int ring_full(struct ring_buffer *rb) {
+	return ring_size(rb) == RING_CAP;
+}
+
+uint32_t ring_size(struct ring_buffer *rb) { 
+	return rb->tail - rb->head; 
 }
 
 int main() {
-	struct ring r;
-	init(&r);
+	struct ring_buffer rb;
+	ring_init(&rb);
 
-	push(&r, "karl");
-	printf("%s\n", shift(&r));	
+	ring_push(&rb, "karl");
+	printf("%s\n", ring_shift(&rb));	
 }
