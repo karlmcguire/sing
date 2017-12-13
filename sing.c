@@ -13,7 +13,7 @@ sing_init(struct sing_buffer *b) {
 int
 sing_push(struct sing_buffer *b, char *s) {
 	if(sing_full(b))
-		return 0;
+		return 1;
 
 	int i = (b->tail++) & SING_LEN;
 	int l = strlen(s) + 1;
@@ -24,7 +24,7 @@ sing_push(struct sing_buffer *b, char *s) {
 	b->array[i] = malloc(l);
 	strncpy(b->array[i], s, l);
 
-	return 1;
+	return 0;
 }
 
 char
