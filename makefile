@@ -1,2 +1,2 @@
 all:
-	clang -DRING_CAP=4 -std=c99 ring.c -o ring
+	clang -DSING_CAP=4 -std=c99 sing.c -o sing
