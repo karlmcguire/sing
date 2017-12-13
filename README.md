@@ -15,3 +15,8 @@ sing_push(&b, "karl");
 // read a string from the buffer
 char *karl = sing_shift(&b);
 ```
+
+### todo
+
+* concurrency/thread safe
+* more data types
