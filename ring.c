@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdint.h>
-#include <time.h>
+#include <stdlib.h>
+#include <string.h>
 
 // CAP must be a power of 2 (using uint32_t overflow)
 #define CAP 4
@@ -9,28 +10,52 @@
 struct ring {
 	uint32_t head;
 	uint32_t tail;
-	char array[CAP];
+	char *array[CAP];
 };
 
 /* push adds an element to the tail of the ring buffer */
-void push(struct ring *r, char v) { r->array[(r->tail++) & LEN] = v; }
+void push(struct ring *r, char *v) {
+	// get next index
+	int i = (r->tail++) & LEN;
+	// get length of string
+	int l = strlen(v) + 1;
+
+	// free memory if already allocated
+	if(!r->array[i])
+		free(r->array[i]);
+
+	// allocate length of string
+	r->array[i]	= malloc(l);
+	// copy string
+	strncpy(r->array[i], v, l);
+}
 
 /* shift returns the element from the head of the ring buffer */
-char shift(struct ring *r) { return r->array[(r->head++) & LEN]; }
+char *shift(struct ring *r) { 
+	return r->array[(r->head++) & LEN]; 
+}
 
 /* init sets up the ring tail field for pushing/shifting */
-void init(struct ring *r) { r->tail = (uint32_t)CAP; }
+void init(struct ring *r) { 
+	r->tail = (uint32_t)CAP; 
+	r->head = (uint32_t)CAP;
+}
+
+uint32_t size(struct ring *r) { return r->tail - r->head; }
+int empty(struct ring *r) { return r->head == r->tail;	}
+int full(struct ring *r) { return size(r) == (uint32_t)CAP; }
 
 int main() {
 	struct ring r;
 	init(&r);
 
-	push(&r, 'k');
-	printf("%c", shift(&r));
-	push(&r, 'a');
-	printf("%c", shift(&r));
-	push(&r, 'r');
-	printf("%c", shift(&r));
-	push(&r, 'l');
-	printf("%c\n", shift(&r));
+	push(&r, "karl");
+	push(&r, "noah");
+	push(&r, "finn");
+	push(&r, "max");
+
+	printf("%s\n", shift(&r));
+	printf("%s\n", shift(&r));
+	printf("%s\n", shift(&r));
+	printf("%s\n", shift(&r));
 }
