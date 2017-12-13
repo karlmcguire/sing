@@ -54,14 +54,3 @@ uint32_t
 sing_size(struct sing_buffer *b) { 
 	return b->tail - b->head; 
 }
-
-/*
-int 
-main() {
-	struct sing_buffer b;
-	sing_init(&b);
-
-	sing_push(&b, "karl");
-	printf("%s\n", sing_shift(&b));	// will output "karl"
-}
-*/

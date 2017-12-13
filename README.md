@@ -2,8 +2,21 @@
 
 Fast string ring buffers.
 
-### why?
+### usage
 
-In the future I will make a Lua wrapper for this, then I'll experiment with 
-coroutines and event handling using the disruptor pattern (particularly using
-JSON or other string formats over the wire).
+```c
+#include "sing.h"
+
+int
+main(void) {
+    // create and initialize a buffer 
+    struct sing_buffer b;
+    init(&b);
+
+    // push a string to the buffer
+    sing_push(&b, "karl");
+
+    // read a string from the buffer
+    const char *karl = sing_shift(&b);
+}
+```
