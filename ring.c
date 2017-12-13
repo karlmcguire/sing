@@ -25,7 +25,7 @@ void push(struct ring *r, char *v) {
 		free(r->array[i]);
 
 	// allocate length of string
-	r->array[i]	= malloc(l);
+	r->array[i] = malloc(l);
 	// copy string
 	strncpy(r->array[i], v, l);
 }
